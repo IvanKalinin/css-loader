@@ -12,9 +12,11 @@ function getEvaluated(output, modules) {
 		fn(m, m.exports, function(module) {
 			if(module.indexOf("css-base") >= 0)
 				return require("../lib/css-base");
+			if(module.indexOf("url/escape") >= 0)
+				return require("../lib/url/escape");
 			if(module.indexOf("-!/path/css-loader!") === 0)
 				module = module.substr(19);
-			if(modules && modules[module])
+			if(modules && module in modules)
 				return modules[module];
 			return "{" + module + "}";
 		});
@@ -73,13 +75,13 @@ exports.test = function test(name, input, result, query, modules) {
 	});
 };
 
-exports.testRaw = function testRaw(name, input, result, query, modules) {
+exports.testRaw = function testRaw(name, input, result, query) {
 	it(name, function(done) {
 		runLoader(cssLoader, input, undefined, !query || typeof query === "string" ? {
 			query: query
 		} : query, function(err, output) {
 			if(err) return done(err);
-			assertRaw(output, result, modules);
+			assertRaw(output, result);
 			done();
 		});
 	});
